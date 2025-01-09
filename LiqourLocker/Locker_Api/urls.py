@@ -1,13 +1,17 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('index/', views.index, name='Locker_Api-index'),
-    path('products/', views.products, name='Locker_Api-products'),
-    path('products/delete/<int:pk>/', views.product_delete, name='Locker_Api-products-delete'),
-    path('products/detail/<int:pk>/', views.product_detail, name='Locker_Api-products-detail'),
-    path('products/edit/<int:pk>/', views.product_edit, name='Locker_Api-products-edit'),
-    path('customers/', views.customer_list, name='Locker_Api-customers'),  # Changed to match view function name
-    path('customers/detail/<int:pk>/', views.customer_detail, name='Locker_Api-customer-detail'),
-    path('order/', views.order_list, name='Locker_Api-order'),  # Changed to match view function name
+    path('', views.home, name='home'),
+    path('login/', auth_views.LoginView.as_view(template_name='liquor/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='liquor/logout.html'), name='logout'),
+    path('register/', views.register, name='register'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('recipes/', views.drink_recipes, name='recipes'),
+    path('recipes/add/', views.add_recipe, name='add_recipe'),
+    path('recipes/<int:pk>/', views.recipe_detail, name='recipe_detail'),
+    path('inventory/', views.inventory, name='inventory'),
+    path('inventory/add/', views.add_inventory, name='add_inventory'),
+    path('inventory/update/<int:pk>/', views.update_inventory, name='update_inventory'),
 ]

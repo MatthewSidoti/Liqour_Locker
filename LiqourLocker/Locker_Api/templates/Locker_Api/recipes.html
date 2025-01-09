@@ -1,0 +1,56 @@
+{% extends 'Locker_Api/base.html' %}
+
+{% block title %}Drink Recipes - Liquor Locker{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Drink Recipes</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+            Add New Recipe
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    {% for recipe in recipes %}
+    <div class="col-md-3 mb-4">
+        <div class="card">
+            {% if recipe.image %}
+                <img src="{{ recipe.image.url }}" class="card-img-top" alt="{{ recipe.name }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ recipe.name }}</h5>
+                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#recipeModal{{ recipe.id }}">
+                    View Recipe
+                </button>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p>No recipes available yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Recipe Modal -->
+{% for recipe in recipes %}
+<div class="modal fade" id="recipeModal{{ recipe.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ recipe.name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Ingredients:</h6>
+                {{ recipe.ingredients|linebreaks }}
+                <h6>Instructions:</h6>
+                {{ recipe.instructions|linebreaks }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

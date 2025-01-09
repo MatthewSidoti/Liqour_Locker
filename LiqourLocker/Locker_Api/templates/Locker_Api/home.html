@@ -1,0 +1,56 @@
+{% extends 'Locker_Api/base.html' %}
+
+{% block title %}Welcome to Liquor Locker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <h1 class="display-4 mb-4">Liquor Locker</h1>
+        <p class="lead mb-4">Your Personal Beverage Inventory Manager</p>
+        
+        <div class="d-grid gap-3">
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                </a>
+                <a href="{% url 'inventory' %}" class="btn btn-info btn-lg">
+                    <i class="fas fa-boxes me-2"></i>View Inventory
+                </a>
+                <a href="{% url 'recipes' %}" class="btn btn-success btn-lg">
+                    <i class="fas fa-cocktail me-2"></i>Drink Recipes
+                </a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-success btn-lg">
+                    <i class="fas fa-user-plus me-2"></i>Register
+                </a>
+            {% endif %}
+        </div>
+        
+        {% if not user.is_authenticated %}
+        <div class="mt-5">
+            <h3>Why Use Liquor Locker?</h3>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <i class="fas fa-box-open fa-2x mb-3 text-primary"></i>
+                    <h5>Track Inventory</h5>
+                    <p>Keep track of your beverage stock</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="fas fa-cocktail fa-2x mb-3 text-primary"></i>
+                    <h5>Recipe Library</h5>
+                    <p>Access and save drink recipes</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="fas fa-chart-bar fa-2x mb-3 text-primary"></i>
+                    <h5>Analytics</h5>
+                    <p>Track usage and inventory trends</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

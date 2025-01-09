@@ -1,148 +1,86 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from .models import Product, Order
-from .forms import ProductForm, OrderForm
-from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .decorators import allowed_users
-from django.contrib.auth.models import Group
+from django.contrib import messages
+from .models import Product, DrinkRecipe, Inventory
+from .forms import ProductForm, DrinkRecipeForm, InventoryForm
 from django.contrib.auth.forms import UserCreationForm
 
-@login_required(login_url='user-login')
-def index(request):
-    product = Product.objects.all()
-    product_count = product.count()
-    order = Order.objects.all()
-    order_count = order.count()
-    customer = User.objects.filter(groups=2)
-    customer_count = customer.count()
+def home(request):
+    return render(request, 'Locker_Api/home.html')
 
+def register(request):
     if request.method == 'POST':
-        form = OrderForm(request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj.customer = request.user
-            obj.save()
-            return redirect('Locker_Api-index')
+            form.save()
+            messages.success(request, 'Account created successfully! Please log in.')
+            return redirect('login')
     else:
-        form = OrderForm()
+        form = UserCreationForm()
+    return render(request, 'Locker_Api/register.html', {'form': form})
+
+@login_required
+def dashboard(request):
+    inventory_count = Inventory.objects.count()
+    low_stock_count = Inventory.objects.filter(quantity__lte=5).count()
     context = {
-        'form': form,
-        'order': order,
-        'product': product,
-        'product_count': product_count,
-        'order_count': order_count,
-        'customer_count': customer_count,
+        'inventory_count': inventory_count,
+        'low_stock_count': low_stock_count,
     }
-    return render(request, 'dashboard/index.html', context)
+    return render(request, 'Locker_Api/dashboard.html', context)
 
-@login_required(login_url='user-login')
-def products(request):
-    product = Product.objects.all()
-    product_count = product.count()
-    customer = User.objects.filter(groups=2)
-    customer_count = customer.count()
-    order = Order.objects.all()
-    order_count = order.count()
+@login_required
+def inventory(request):
+    inventory_items = Inventory.objects.all()
+    return render(request, 'Locker_Api/inventory.html', {'inventory': inventory_items})
 
+@login_required
+def recipes(request):
+    recipes = DrinkRecipe.objects.all()
+    return render(request, 'Locker_Api/recipes.html', {'recipes': recipes})
+
+@login_required
+def product_list(request):
+    products = Product.objects.all()
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():
             form.save()
-            product_name = form.cleaned_data.get('name')
-            messages.success(request, f'{product_name} has been added')
-            return redirect('Locker_Api-products')
+            messages.success(request, 'Product added successfully!')
+            return redirect('product-list')
     else:
         form = ProductForm()
-    context = {
-        'product': product,
-        'form': form,
-        'customer_count': customer_count,
-        'product_count': product_count,
-        'order_count': order_count,
-    }
-    return render(request, 'dashboard/products.html', context)
+    return render(request, 'Locker_Api/product_list.html', {'products': products, 'form': form})
 
-@login_required(login_url='user-login')
-def product_detail(request, pk):
-    product = Product.objects.get(id=pk)
-    context = {'product': product}
-    return render(request, 'dashboard/products_detail.html', context)
-
-@login_required(login_url='user-login')
-@allowed_users(allowed_roles=['Admin'])
-def customer_list(request):
-    customer = User.objects.filter(groups=2)
-    customer_count = customer.count()
-    product = Product.objects.all()
-    product_count = product.count()
-    order = Order.objects.all()
-    order_count = order.count()
-    context = {
-        'customer': customer,
-        'customer_count': customer_count,
-        'product_count': product_count,
-        'order_count': order_count,
-    }
-    return render(request, 'dashboard/customers.html', context)
-
-@login_required(login_url='user-login')
-@allowed_users(allowed_roles=['Admin'])
-def customer_detail(request, pk):
-    customer = User.objects.get(id=pk)
-    context = {'customer': customer}
-    return render(request, 'dashboard/customers_detail.html', context)
-
-@login_required(login_url='user-login')
-@allowed_users(allowed_roles=['Admin'])
-def product_edit(request, pk):
-    item = Product.objects.get(id=pk)
+@login_required
+def add_recipe(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST, instance=item)
+        form = DrinkRecipeForm(request.POST, request.FILES)
+        if form.is_valid():
+            recipe = form.save(commit=False)
+            recipe.created_by = request.user
+            recipe.save()
+            return redirect('recipes')
+    else:
+        form = DrinkRecipeForm()
+    return render(request, 'Locker_Api/add_recipe.html', {'form': form})
+
+@login_required
+def edit_inventory(request, pk):
+    item = get_object_or_404(Inventory, pk=pk)
+    if request.method == 'POST':
+        form = InventoryForm(request.POST, instance=item)
         if form.is_valid():
             form.save()
-            return redirect('Locker_Api-products')
+            return redirect('inventory')
     else:
-        form = ProductForm(instance=item)
-    context = {'form': form}
-    return render(request, 'dashboard/products_edit.html', context)
+        form = InventoryForm(instance=item)
+    return render(request, 'Locker_Api/edit_inventory.html', {'form': form, 'item': item})
 
-@login_required(login_url='user-login')
-@allowed_users(allowed_roles=['Admin'])
-def product_delete(request, pk):
-    item = Product.objects.get(id=pk)
+@login_required
+def delete_inventory(request, pk):
+    item = get_object_or_404(Inventory, pk=pk)
     if request.method == 'POST':
         item.delete()
-        return redirect('Locker_Api-products')
-    context = {'item': item}
-    return render(request, 'dashboard/products_delete.html', context)
-
-@login_required(login_url='user-login')
-def order_list(request):
-    order = Order.objects.all()
-    order_count = order.count()
-    customer = User.objects.filter(groups=2)
-    customer_count = customer.count()
-    product = Product.objects.all()
-    product_count = product.count()
-    context = {
-        'order': order,
-        'customer_count': customer_count,
-        'product_count': product_count,
-        'order_count': order_count,
-    }
-    return render(request, 'dashboard/order.html', context)
-
-def register(request):
-    group, created = Group.objects.get_or_create(name='Customers')
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            user.groups.add(group)
-            messages.success(request, 'Registration successful. Please log in.')
-            return redirect('user-login')
-    else:
-        form = UserCreationForm()
-    context = {'form': form}
-    return render(request, 'registration/register.html', context)
+        return redirect('inventory')
+    return render(request, 'Locker_Api/delete_inventory.html', {'item': item})
