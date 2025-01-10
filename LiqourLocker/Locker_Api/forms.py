@@ -1,12 +1,14 @@
 from django import forms
 from .models import Product, DrinkRecipe, Inventory
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'quantity', 'price', 'description']
+        fields = ['sku', 'name', 'category', 'quantity', 'price', 'description']
+        widgets = {
+            'sku': forms.TextInput(attrs={'placeholder': 'Enter SKU number'}),
+            'name': forms.TextInput(attrs={'placeholder': 'Enter product name'})
+        }
 
 class DrinkRecipeForm(forms.ModelForm):
     class Meta:
@@ -17,10 +19,3 @@ class InventoryForm(forms.ModelForm):
     class Meta:
         model = Inventory
         fields = ['product', 'quantity', 'min_quantity']
-
-class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password1', 'password2']

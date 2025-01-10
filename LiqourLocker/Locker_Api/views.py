@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Product, DrinkRecipe, Inventory
-from .forms import ProductForm, DrinkRecipeForm, InventoryForm
+from .forms import DrinkRecipeForm, InventoryForm
 from django.contrib.auth.forms import UserCreationForm
 
 def home(request):
@@ -23,9 +23,11 @@ def register(request):
 def dashboard(request):
     inventory_count = Inventory.objects.count()
     low_stock_count = Inventory.objects.filter(quantity__lte=5).count()
+    recipes = DrinkRecipe.objects.all()[:4]
     context = {
         'inventory_count': inventory_count,
         'low_stock_count': low_stock_count,
+        'recipes': recipes,
     }
     return render(request, 'Locker_Api/dashboard.html', context)
 
@@ -35,22 +37,35 @@ def inventory(request):
     return render(request, 'Locker_Api/inventory.html', {'inventory': inventory_items})
 
 @login_required
+def add_inventory(request):
+    if request.method == 'POST':
+        sku = request.POST.get('sku')
+        name = request.POST.get('name')
+        category = request.POST.get('category')
+        quantity = request.POST.get('quantity')
+        
+        
+        product = Product.objects.create(
+            sku=sku,
+            name=name,
+            category=category
+        )
+        
+        
+        Inventory.objects.create(
+            product=product,
+            quantity=quantity
+        )
+        
+        messages.success(request, 'Item added successfully!')
+        return redirect('inventory')
+        
+    return render(request, 'Locker_Api/add_inventory.html')
+
+@login_required
 def recipes(request):
     recipes = DrinkRecipe.objects.all()
     return render(request, 'Locker_Api/recipes.html', {'recipes': recipes})
-
-@login_required
-def product_list(request):
-    products = Product.objects.all()
-    if request.method == 'POST':
-        form = ProductForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Product added successfully!')
-            return redirect('product-list')
-    else:
-        form = ProductForm()
-    return render(request, 'Locker_Api/product_list.html', {'products': products, 'form': form})
 
 @login_required
 def add_recipe(request):
@@ -60,27 +75,8 @@ def add_recipe(request):
             recipe = form.save(commit=False)
             recipe.created_by = request.user
             recipe.save()
+            messages.success(request, 'Recipe added successfully!')
             return redirect('recipes')
     else:
         form = DrinkRecipeForm()
     return render(request, 'Locker_Api/add_recipe.html', {'form': form})
-
-@login_required
-def edit_inventory(request, pk):
-    item = get_object_or_404(Inventory, pk=pk)
-    if request.method == 'POST':
-        form = InventoryForm(request.POST, instance=item)
-        if form.is_valid():
-            form.save()
-            return redirect('inventory')
-    else:
-        form = InventoryForm(instance=item)
-    return render(request, 'Locker_Api/edit_inventory.html', {'form': form, 'item': item})
-
-@login_required
-def delete_inventory(request, pk):
-    item = get_object_or_404(Inventory, pk=pk)
-    if request.method == 'POST':
-        item.delete()
-        return redirect('inventory')
-    return render(request, 'Locker_Api/delete_inventory.html', {'item': item})

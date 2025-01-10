@@ -1,23 +1,40 @@
-{% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% extends 'Locker_Api/base.html' %}
 
-{% block title %}Add Inventory{% endblock %}
+{% block title %}Add Inventory Item{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <h3>Add Inventory Item</h3>
+                <h3>Add New Inventory Item</h3>
             </div>
             <div class="card-body">
-                <form method="post">
+                <form method="POST">
                     {% csrf_token %}
-                    {{ form|crispy }}
-                    <div class="mt-3">
-                        <button type="submit" class="btn btn-primary">Save Item</button>
-                        <a href="{% url 'inventory' %}" class="btn btn-secondary">Cancel</a>
+                    <div class="form-group mb-3">
+                        <label for="sku">SKU</label>
+                        <input type="text" class="form-control" id="sku" name="sku" required>
                     </div>
+                    <div class="form-group mb-3">
+                        <label for="name">Product Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="category">Category</label>
+                        <select class="form-control" id="category" name="category">
+                            <option value="Beer">Beer</option>
+                            <option value="Wine">Wine</option>
+                            <option value="Spirits">Spirits</option>
+                            <option value="Mixers">Mixers</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" required min="0">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                    <a href="{% url 'inventory' %}" class="btn btn-secondary">Cancel</a>
                 </form>
             </div>
         </div>
