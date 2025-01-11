@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from .models import Product, DrinkRecipe, Inventory
 from .forms import DrinkRecipeForm, InventoryForm
 from django.contrib.auth.forms import UserCreationForm
+
+def is_owner(user):
+    return user.is_authenticated and user.is_superuser
 
 def home(request):
     return render(request, 'Locker_Api/home.html')
@@ -50,6 +53,7 @@ def inventory(request):
     return render(request, 'Locker_Api/inventory.html', {'inventory': inventory_items})
 
 @login_required
+@user_passes_test(is_owner)
 def add_inventory(request):
     if request.method == 'POST':
         sku = request.POST.get('sku')
@@ -57,25 +61,24 @@ def add_inventory(request):
         category = request.POST.get('category')
         quantity = request.POST.get('quantity')
         
-        # Create product first
         product = Product.objects.create(
             sku=sku,
             name=name,
             category=category
         )
         
-        # Create inventory entry
         inventory_item = Inventory.objects.create(
             product=product,
             quantity=quantity
         )
         
-        messages.success(request, f'Added {quantity} units of {name}')
+        messages.success(request, 'Item added successfully!')
         return redirect('inventory')
         
     return render(request, 'Locker_Api/add_inventory.html')
 
 @login_required
+@user_passes_test(is_owner)
 def edit_inventory(request, pk):
     inventory_item = get_object_or_404(Inventory, pk=pk)
     
@@ -85,13 +88,11 @@ def edit_inventory(request, pk):
         category = request.POST.get('category')
         quantity = request.POST.get('quantity')
         
-        # Update product
         inventory_item.product.sku = sku
         inventory_item.product.name = name
         inventory_item.product.category = category
         inventory_item.product.save()
         
-        # Update inventory
         inventory_item.quantity = quantity
         inventory_item.save()
         
@@ -104,11 +105,12 @@ def edit_inventory(request, pk):
     return render(request, 'Locker_Api/edit_inventory.html', context)
 
 @login_required
+@user_passes_test(is_owner)
 def delete_inventory(request, pk):
     inventory_item = get_object_or_404(Inventory, pk=pk)
     
     if request.method == 'POST':
-        inventory_item.product.delete()  # This will also delete the inventory item due to CASCADE
+        inventory_item.product.delete()
         messages.success(request, 'Item deleted successfully!')
         return redirect('inventory')
         
@@ -119,24 +121,19 @@ def delete_inventory(request, pk):
 
 @login_required
 def recipes(request):
-    recipes = DrinkRecipe.objects.all().order_by('-created_at')
+    recipes = DrinkRecipe.objects.all()
     return render(request, 'Locker_Api/recipes.html', {'recipes': recipes})
 
 @login_required
 def add_recipe(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        recipe_url = request.POST.get('recipe_url')
-        image = request.FILES.get('image')
-        
-        recipe = DrinkRecipe.objects.create(
-            name=name,
-            recipe_url=recipe_url,
-            image=image,
-            created_by=request.user
-        )
-        
-        messages.success(request, 'Recipe added successfully!')
-        return redirect('recipes')
-        
-    return render(request, 'Locker_Api/add_recipe.html')
+        form = DrinkRecipeForm(request.POST, request.FILES)
+        if form.is_valid():
+            recipe = form.save(commit=False)
+            recipe.created_by = request.user
+            recipe.save()
+            messages.success(request, 'Recipe added successfully!')
+            return redirect('recipes')
+    else:
+        form = DrinkRecipeForm()
+    return render(request, 'Locker_Api/add_recipe.html', {'form': form})

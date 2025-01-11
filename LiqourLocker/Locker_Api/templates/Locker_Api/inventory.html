@@ -6,7 +6,9 @@
 <div class="row mb-4">
     <div class="col-md-12">
         <h2 class="float-start">Inventory</h2>
-        <a href="{% url 'add-inventory' %}" class="btn btn-primary float-end">Add New Item</a>
+        {% if request.user.is_superuser %}
+            <a href="{% url 'add-inventory' %}" class="btn btn-primary float-end">Add New Item</a>
+        {% endif %}
     </div>
 </div>
 
@@ -25,6 +27,26 @@
     </div>
 </div>
 
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        var searchText = this.value.toLowerCase();
+        var table = document.getElementById('inventoryTable');
+        var rows = table.getElementsByTagName('tr');
+    
+        for (var i = 1; i < rows.length; i++) {
+            var show = false;
+            var cells = rows[i].getElementsByTagName('td');
+            for (var j = 0; j < cells.length; j++) {
+                if (cells[j].textContent.toLowerCase().includes(searchText)) {
+                    show = true;
+                    break;
+                }
+            }
+            rows[i].style.display = show ? '' : 'none';
+        }
+    });
+</script>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card">
@@ -36,7 +58,9 @@
                             <th>Product</th>
                             <th>Category</th>
                             <th>Quantity</th>
-                            <th>Actions</th>
+                            {% if request.user.is_superuser %}
+                                <th>Actions</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -46,14 +70,18 @@
                             <td>{{ item.product.name }}</td>
                             <td>{{ item.product.category }}</td>
                             <td>{{ item.quantity }}</td>
-                            <td>
-                                <a href="{% url 'edit-inventory' pk=item.id %}" class="btn btn-sm btn-info">Edit</a>
-                                <a href="{% url 'delete-inventory' pk=item.id %}" class="btn btn-sm btn-danger">Delete</a>
-                            </td>
+                            {% if request.user.is_superuser %}
+                                <td>
+                                    <a href="{% url 'edit-inventory' pk=item.id %}" class="btn btn-sm btn-info">Edit</a>
+                                    <a href="{% url 'delete-inventory' pk=item.id %}" class="btn btn-sm btn-danger">Delete</a>
+                                </td>
+                            {% endif %}
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center">No inventory items available.</td>
+                            <td colspan="{% if request.user.is_superuser %}5{% else %}4{% endif %}" class="text-center">
+                                No inventory items available.
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -63,10 +91,10 @@
     </div>
 </div>
 
-<!-- Sponsored Section at the Bottom -->
-<div class="row mb-4">
+<!-- Sponsored Section -->
+<div class="row mt-4">
     <div class="col-md-12">
-        {% include "Locker_Api/sponsored.html" %}
+        {% include 'Locker_Api/sponsored.html' %}
     </div>
 </div>
 
@@ -113,25 +141,5 @@
     font-size: 0.7rem;
 }
 </style>
-
-<script>
-document.getElementById('searchInput').addEventListener('keyup', function() {
-    var searchText = this.value.toLowerCase();
-    var table = document.getElementById('inventoryTable');
-    var rows = table.getElementsByTagName('tr');
-
-    for (var i = 1; i < rows.length; i++) {
-        var show = false;
-        var cells = rows[i].getElementsByTagName('td');
-        for (var j = 0; j < cells.length; j++) {
-            if (cells[j].textContent.toLowerCase().includes(searchText)) {
-                show = true;
-                break;
-            }
-        }
-        rows[i].style.display = show ? '' : 'none';
-    }
-});
-</script>
 
 {% endblock %}
