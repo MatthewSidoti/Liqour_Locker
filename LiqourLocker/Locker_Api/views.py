@@ -23,11 +23,9 @@ def register(request):
 def dashboard(request):
     inventory_count = Inventory.objects.count()
     low_stock_count = Inventory.objects.filter(quantity__lte=5).count()
-    recipes = DrinkRecipe.objects.all()[:4]
     context = {
         'inventory_count': inventory_count,
         'low_stock_count': low_stock_count,
-        'recipes': recipes,
     }
     return render(request, 'Locker_Api/dashboard.html', context)
 
@@ -44,14 +42,14 @@ def add_inventory(request):
         category = request.POST.get('category')
         quantity = request.POST.get('quantity')
         
-        
+        # Create product first
         product = Product.objects.create(
             sku=sku,
             name=name,
             category=category
         )
         
-        
+        # Then create inventory entry
         Inventory.objects.create(
             product=product,
             quantity=quantity
@@ -63,20 +61,67 @@ def add_inventory(request):
     return render(request, 'Locker_Api/add_inventory.html')
 
 @login_required
+def edit_inventory(request, pk):
+    inventory_item = get_object_or_404(Inventory, pk=pk)
+    
+    if request.method == 'POST':
+        sku = request.POST.get('sku')
+        name = request.POST.get('name')
+        category = request.POST.get('category')
+        quantity = request.POST.get('quantity')
+        
+        # Update product
+        inventory_item.product.sku = sku
+        inventory_item.product.name = name
+        inventory_item.product.category = category
+        inventory_item.product.save()
+        
+        # Update inventory
+        inventory_item.quantity = quantity
+        inventory_item.save()
+        
+        messages.success(request, 'Item updated successfully!')
+        return redirect('inventory')
+        
+    context = {
+        'item': inventory_item
+    }
+    return render(request, 'Locker_Api/edit_inventory.html', context)
+
+@login_required
+def delete_inventory(request, pk):
+    inventory_item = get_object_or_404(Inventory, pk=pk)
+    
+    if request.method == 'POST':
+        inventory_item.product.delete()  # This will also delete the inventory item due to CASCADE
+        messages.success(request, 'Item deleted successfully!')
+        return redirect('inventory')
+        
+    context = {
+        'item': inventory_item
+    }
+    return render(request, 'Locker_Api/delete_inventory.html', context)
+
+@login_required
 def recipes(request):
-    recipes = DrinkRecipe.objects.all()
+    recipes = DrinkRecipe.objects.all().order_by('-created_at')
     return render(request, 'Locker_Api/recipes.html', {'recipes': recipes})
 
 @login_required
 def add_recipe(request):
     if request.method == 'POST':
-        form = DrinkRecipeForm(request.POST, request.FILES)
-        if form.is_valid():
-            recipe = form.save(commit=False)
-            recipe.created_by = request.user
-            recipe.save()
-            messages.success(request, 'Recipe added successfully!')
-            return redirect('recipes')
-    else:
-        form = DrinkRecipeForm()
-    return render(request, 'Locker_Api/add_recipe.html', {'form': form})
+        name = request.POST.get('name')
+        recipe_url = request.POST.get('recipe_url')
+        image = request.FILES.get('image')
+        
+        recipe = DrinkRecipe.objects.create(
+            name=name,
+            recipe_url=recipe_url,
+            image=image,
+            created_by=request.user
+        )
+        
+        messages.success(request, 'Recipe added successfully!')
+        return redirect('recipes')
+        
+    return render(request, 'Locker_Api/add_recipe.html')

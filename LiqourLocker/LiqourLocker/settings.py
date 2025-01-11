@@ -115,8 +115,8 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "asert"
 
 # Media files
-MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -143,6 +143,8 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Login settings
 LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
 
 # Debug settings
 if DEBUG:
