@@ -23,9 +23,24 @@ def register(request):
 def dashboard(request):
     inventory_count = Inventory.objects.count()
     low_stock_count = Inventory.objects.filter(quantity__lte=5).count()
+    
+    # Get recent activities
+    recent_activities = []
+    
+    # Recent inventory changes
+    recent_inventory = Inventory.objects.all().order_by('-last_updated')[:5]
+    for item in recent_inventory:
+        recent_activities.append(f"Inventory updated for {item.product.name}: {item.quantity} units")
+    
+    # Recent recipes
+    recent_recipes = DrinkRecipe.objects.all().order_by('-created_at')[:5]
+    for recipe in recent_recipes:
+        recent_activities.append(f"Recipe added: {recipe.name}")
+
     context = {
         'inventory_count': inventory_count,
         'low_stock_count': low_stock_count,
+        'recent_activities': recent_activities,
     }
     return render(request, 'Locker_Api/dashboard.html', context)
 
@@ -49,13 +64,13 @@ def add_inventory(request):
             category=category
         )
         
-        # Then create inventory entry
-        Inventory.objects.create(
+        # Create inventory entry
+        inventory_item = Inventory.objects.create(
             product=product,
             quantity=quantity
         )
         
-        messages.success(request, 'Item added successfully!')
+        messages.success(request, f'Added {quantity} units of {name}')
         return redirect('inventory')
         
     return render(request, 'Locker_Api/add_inventory.html')

@@ -10,11 +10,26 @@
     </div>
 </div>
 
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="search-container">
+            <div class="input-group input-group-lg shadow-sm">
+                <span class="input-group-text bg-primary text-white">
+                    <i class="fas fa-search"></i>
+                </span>
+                <input type="text" id="searchInput" class="form-control form-control-lg" 
+                       placeholder="Search inventory by name, SKU, or category..." 
+                       style="border-left: none;">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-md-12">
         <div class="card">
             <div class="card-body">
-                <table class="table">
+                <table class="table" id="inventoryTable">
                     <thead>
                         <tr>
                             <th>SKU</th>
@@ -47,4 +62,50 @@
         </div>
     </div>
 </div>
+
+<style>
+.search-container {
+    margin: 20px 0;
+    padding: 10px;
+}
+
+#searchInput {
+    border: 2px solid #e9ecef;
+    font-size: 1.1rem;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+}
+
+#searchInput:focus {
+    box-shadow: 0 0 15px rgba(0,123,255,0.1);
+    border-color: #80bdff;
+    outline: 0;
+}
+
+.input-group-text {
+    border: none;
+    font-size: 1.2rem;
+    padding: 0 20px;
+}
+</style>
+
+<script>
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    var searchText = this.value.toLowerCase();
+    var table = document.getElementById('inventoryTable');
+    var rows = table.getElementsByTagName('tr');
+
+    for (var i = 1; i < rows.length; i++) {
+        var show = false;
+        var cells = rows[i].getElementsByTagName('td');
+        for (var j = 0; j < cells.length; j++) {
+            if (cells[j].textContent.toLowerCase().includes(searchText)) {
+                show = true;
+                break;
+            }
+        }
+        rows[i].style.display = show ? '' : 'none';
+    }
+});
+</script>
 {% endblock %}
