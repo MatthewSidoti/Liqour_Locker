@@ -53,4 +53,85 @@
         {% endif %}
     </div>
 </div>
+<!-- Featured Sponsors Section -->
+<div class="row mt-5">
+  <div class="col-12 text-center mb-4">
+      <h3>Featured Partners</h3>
+  </div>
+  <div class="col-md-4">
+      <div class="sponsored-section">
+          <div class="card bg-light border-0 shadow-sm h-100">
+              <div class="card-body text-center">
+                  <small class="text-muted d-block mb-3">Sponsored</small>
+                  <img src="https://i.ibb.co/S3ShHtF/Woodford-Ad.jpg" alt="Woodford-Ad" class="ad-banner">
+                  <h5>Premium Spirits</h5>
+                  <p class="text-muted">Discover our selection of craft spirits</p>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="col-md-4">
+      <div class="sponsored-section">
+          <div class="card bg-light border-0 shadow-sm h-100">
+              <div class="card-body text-center">
+                  <small class="text-muted d-block mb-3">Sponsored</small>
+                  <img src="https://i.ibb.co/h9yd7ww/Wine-Ad.jpg" alt="Wine-Ad" class="ad-banner">
+                  <h5>Wine Collection</h5>
+                  <p class="text-muted">Explore our curated wine selection</p>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="col-md-4">
+      <div class="sponsored-section">
+          <div class="card bg-light border-0 shadow-sm h-100">
+              <div class="card-body text-center">
+                  <small class="text-muted d-block mb-3">Sponsored</small>
+                  <img src="https://i.ibb.co/XCC2LXD/LNB.jpg" alt="LNB" class="ad-banner">
+                  <h5>Craft Beer</h5>
+                  <p class="text-muted">Find your next favorite brew</p>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<style>
+.sponsored-section {
+  transition: transform 0.2s ease;
+  margin-bottom: 20px;
+}
+
+.sponsored-section:hover {
+  transform: translateY(-5px);
+}
+
+.sponsored-section .card {
+  background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+  border-radius: 15px;
+}
+
+.sponsored-section small {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.7rem;
+}
+
+.sponsored-section img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.sponsored-section:hover img {
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .sponsored-section {
+      margin-bottom: 30px;
+  }
+}
+</style>
 {% endblock %}

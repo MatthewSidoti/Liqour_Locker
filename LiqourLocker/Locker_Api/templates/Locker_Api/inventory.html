@@ -63,6 +63,13 @@
     </div>
 </div>
 
+<!-- Sponsored Section at the Bottom -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        {% include "Locker_Api/sponsored.html" %}
+    </div>
+</div>
+
 <style>
 .search-container {
     margin: 20px 0;
@@ -87,6 +94,24 @@
     font-size: 1.2rem;
     padding: 0 20px;
 }
+
+.sponsored-section {
+    transition: transform 0.2s ease;
+}
+
+.sponsored-section:hover {
+    transform: translateY(-2px);
+}
+
+.sponsored-section .card {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+}
+
+.sponsored-section small {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.7rem;
+}
 </style>
 
 <script>
@@ -108,4 +133,5 @@ document.getElementById('searchInput').addEventListener('keyup', function() {
     }
 });
 </script>
+
 {% endblock %}

@@ -3,34 +3,46 @@
 {% block title %}Drink Recipes{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-12">
-        <h2 class="float-start">Drink Recipes</h2>
-        <a href="{% url 'add-recipe' %}" class="btn btn-primary float-end">Add New Recipe</a>
-    </div>
-</div>
-
 <div class="row">
-    {% for recipe in recipes %}
-    <div class="col-md-3 mb-4 text-center">
-        <a href="{{ recipe.recipe_url }}" target="_blank" class="text-decoration-none">
-            <div class="recipe-container">
-                {% if recipe.image %}
-                    <img src="{{ recipe.image.url }}" class="recipe-image" alt="{{ recipe.name }}">
-                {% else %}
-                    <div class="recipe-image-placeholder">
-                        {{ recipe.name|make_list|first|upper }}
-                    </div>
-                {% endif %}
-                <h5 class="mt-3 text-dark">{{ recipe.name }}</h5>
+    <!-- Main content -->
+    <div class="col-md-9">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h2 class="float-start">Drink Recipes</h2>
+                <a href="{% url 'add-recipe' %}" class="btn btn-primary float-end">Add New Recipe</a>
             </div>
-        </a>
+        </div>
+
+        <div class="row">
+            {% for recipe in recipes %}
+            <div class="col-md-4 mb-4 text-center">
+                <a href="{{ recipe.recipe_url }}" target="_blank" class="text-decoration-none">
+                    <div class="recipe-container">
+                        {% if recipe.image %}
+                            <img src="{{ recipe.image.url }}" class="recipe-image" alt="{{ recipe.name }}">
+                        {% else %}
+                            <div class="recipe-image-placeholder">
+                                {{ recipe.name|make_list|first|upper }}
+                            </div>
+                        {% endif %}
+                        <h5 class="mt-3 text-dark">{{ recipe.name }}</h5>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>No recipes available yet.</p>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-    {% empty %}
-    <div class="col-12 text-center">
-        <p>No recipes available yet.</p>
+
+    <!-- Sponsored sidebar -->
+    <div class="col-md-3">
+        <div class="sticky-top" style="top: 2rem;">
+            {% include 'Locker_Api/sponsored.html' %}
+        </div>
     </div>
-    {% endfor %}
 </div>
 
 <style>
@@ -64,6 +76,31 @@
 
 .recipe-container:hover .recipe-image {
     transform: scale(1.05);
+}
+
+.sponsored-section {
+    transition: transform 0.2s ease;
+}
+
+.sponsored-section:hover {
+    transform: translateY(-2px);
+}
+
+.sponsored-section .card {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+}
+
+.sponsored-section small {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.7rem;
+}
+
+@media (min-width: 768px) {
+    .sticky-top {
+        position: sticky;
+        top: 20px;
+    }
 }
 </style>
 {% endblock %}
