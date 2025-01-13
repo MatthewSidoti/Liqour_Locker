@@ -80,7 +80,8 @@ WSGI_APPLICATION = 'LiqourLocker.wsgi.application'
 # Database
 DATABASES = {
     'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'
+        default='postgresql://matthewsidoti:abZsnyXfrbxD6DXcPN9q6oIllJeg8CjQ@dpg-cu111vl6l47c739uuq4g-a.ohio-postgres.render.com/liqourlocker2',
+        conn_max_age=600
     )
 }
 
@@ -111,7 +112,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-STATIC_ROOT = BASE_DIR / "asert"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Media files
 MEDIA_URL = '/media/'
